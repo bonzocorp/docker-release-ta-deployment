@@ -1,0 +1,162 @@
+<%! func ManifestTmpl(w io.Writer, config Config) error %>
+<%% import . "github.com/compozed/travel-agent/models" %%>
+---
+groups:
+<% for _, group := range config.Groups { %>
+  - name: <%= group.Name %>
+    jobs:
+      - build-<%= group.Name %>
+      - promote-<%= group.Name %>
+      - minor-<%= group.Name %>
+      - major-<%= group.Name %>
+<% } %>
+
+jobs:
+<% for _, group := range config.Groups { %>
+  - name: build-<%= group.Name %>
+    public: true
+    serial: true
+    plan:
+      - get: git
+        trigger: true
+      - put: edge-<%= group.Name %>
+        params: { build: git/<%= group.Name %> }
+        on_failure:
+          put: notify
+          params:
+            channel:  '#ci'
+            username: bonzofenix
+            icon_url: https://cl.ly/2F421Y300u07/concourse-logo-blue-transparent.png
+            text: ":concourse-fail: < https:ci.com/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME| Failed to build <%= group.Name %>!  Click for details.>"
+
+  - name: minor-<%= group.Name %>
+    public: true
+    plan:
+      - { get: version, resource: version-<%= group.Name %>, trigger: false, params: {bump: minor-<%= group.Name %>} }
+      - { put: version, resource: version-<%= group.Name %>,                 params: {file: version/number} }
+
+  - name: major-<%= group.Name %>
+    public: true
+    plan:
+      - { get: version, resource: version-<%= group.Name %>, trigger: false, params: {bump: major-<%= group.Name %>} }
+      - { put: version, resource: version-<%= group.Name %>,                 params: {file: version/number} }
+
+  - name: promote-<%= group.Name %>
+    public: true
+    serial: true
+    plan:
+      - aggregate:
+          - { get: version, resource: version-<%= group.Name %> }
+          - { get: edge, resource: edge-<%= group.Name %> , passed: [build-<%= group.Name %>], params: { save: true } }
+          - { get: git,  passed: [build-<%= group.Name %>] }
+
+      - task: release
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: starkandwayne/concourse
+          platform: linux
+          inputs:
+            - name: git
+            - name: version
+          outputs:
+            - name: gh
+            - name: pushme
+          run:
+            path: ./git/ci/scripts/release
+            args: []
+          params:
+            REPO_ROOT:    git/<%= group.Name %>
+            RELEASE_ROOT: gh
+            RELEASE_NAME: <%= group.Name %>
+            REPO_OUT:     pushme/git
+            VERSION_FROM: version/number
+            GIT_EMAIL:    "ci@bonzocorp.com"
+            GIT_NAME:     ci-Bot
+
+      - put: latest-<%= group.Name %> # as 'latest'
+        params:
+          load:       edge
+
+      - put: latest-<%= group.Name %> # as 'vX.Y.Z'
+        params:
+          tag:             version/number
+          tag_prefix:      v
+          load:       edge
+
+      - put: version-<%= group.Name %> # as 'latest'
+        params:
+          bump: patch
+      - put: git
+        params:
+          rebase: true
+          repository: pushme/git
+      - put: github
+        params:
+          name: gh/name
+          tag:  gh/tag
+          body: gh/notes.md
+<% } %>
+
+resources:
+<% for _, group := range config.Groups { %>
+  - name: edge-<%= group.Name %>
+    type: docker-image
+    source:
+      email:      (( grab meta.dockerhub.email ))
+      username:   (( grab meta.dockerhub.username ))
+      password:   (( grab meta.dockerhub.password ))
+      repository: bonzofenix/<%= group.Name %>
+      tag: edge
+
+  - name: latest-<%= group.Name %>
+    type: docker-image
+    source:
+      email:      (( grab meta.dockerhub.email ))
+      username:   (( grab meta.dockerhub.username ))
+      password:   (( grab meta.dockerhub.password ))
+      repository: bonzofenix/<%= group.Name %>
+      tag: latest
+
+  - name: version-<%= group.Name %>
+    type: semver
+    source :
+      driver:            s3
+      bucket:            "<%= group.Name %>-pipeline"
+      region_name:       (( grab meta.<%= group.Name %>.s3_bucket.region ))
+      access_key_id:     (( grab meta.<%= group.Name %>.s3_bucket.access_key_id ))
+      secret_access_key: (( grab meta.<%= group.Name %>.s3_bucket.secret_access_key ))
+      key:               version
+      initial_version:   "0.0.1"
+
+  - name: git
+    type: git
+    source:
+      uri:         https://github.com/bonzofenix/docker-release-ta-deployment.git
+      branch:      master
+      private_key: (( grab meta.<%= group.Name %>.git.private_key ))
+<% } %>
+
+
+
+
+
+  - name: notify
+    type: slack-notification
+    source:
+      url: ""
+
+  - name: github
+    type: github-release
+    source:
+      user:          bonzofenix   
+      repository:   bonzofenix/ci-tools
+      access_token: 43fb07af22ae7660f39bcc033c79a56831e969de
+
+resource_types:
+  - name: slack-notification
+    type: docker-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+
