@@ -67,7 +67,7 @@ jobs:
             path: ./git/ci/scripts/release
             args: []
           params:
-            REPO_ROOT:    git/<%= group.Name %>
+            REPO_ROOT:    git
             RELEASE_ROOT: gh
             RELEASE_NAME: <%= group.Name %>
             REPO_OUT:     pushme/git
@@ -133,9 +133,9 @@ resources:
   - name: git
     type: git
     source:
-      uri:         https://github.com/bonzofenix/docker-release-ta-deployment.git
+      uri:         git@github.com:bonzofenix/docker-release-ta-deployment.git
       branch:      master
-      private_key: (( grab meta.<%= group.Name %>.git.private_key ))
+      private_key: (( grab meta.git_private_key ))
 <% } %>
 
 
@@ -152,7 +152,7 @@ resources:
     source:
       user:          bonzofenix   
       repository:   bonzofenix/ci-tools
-      access_token: 43fb07af22ae7660f39bcc033c79a56831e969de
+      access_token: (( grab meta.git_access_token ))
 
 resource_types:
   - name: slack-notification
