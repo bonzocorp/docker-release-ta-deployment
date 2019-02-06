@@ -25,6 +25,7 @@ RUN wget -O cf.tar "https://packages.cloudfoundry.org/stable?release=linux64-bin
 RUN wget -O /usr/local/bin/yaml2vault "https://s3-us-west-1.amazonaws.com/yaml2vault-pipeline/yaml2vault"
 RUN wget "https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/download/v1.2.8/bbr-1.2.8.tar" && tar xvf bbr-1.2.8.tar && mv releases/bbr /usr/local/bin/bbr && rm -r bbr-1.2.8.tar releases
 RUN wget -O /usr/local/bin/fly "https://github.com/concourse/fly/releases/download/v4.2.1-rc.2/fly_linux_amd64"
+RUN wget -O /usr/local/bin/safe https://github.com/starkandwayne/safe/releases/download/v0.9.3/safe-linux-amd64
 
 RUN chmod +x /usr/local/bin/om
 RUN chmod +x /usr/local/bin/spruce
@@ -35,5 +36,6 @@ RUN chmod +x /usr/local/bin/winfs-injector
 RUN chmod +x /usr/local/bin/bosh
 RUN chmod +x /usr/local/bin/yaml2vault
 RUN chmod +x /usr/local/bin/bbr
+RUN chmod +x /usr/local/bin/safe
 RUN chmod +x /usr/local/bin/cf
 RUN chmod +x /usr/local/bin/fly
