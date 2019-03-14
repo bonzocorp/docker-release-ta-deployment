@@ -1,17 +1,23 @@
-FROM alpine:latest
+FROM ubuntu:latest
 
-
-RUN apk update && apk add ca-certificates \
+RUN apt-get update && apt-get install -y ca-certificates \
   jq \
   bash \
   curl \
   sshpass \
-  openssh \
+  openssh-server \
   openssl \
   wget \
   git \
-  libc6-compat \
-  bind-tools
+  libc6-i386 \
+  build-essential \
+  openssl \
+  patch \
+  liblzma-dev \
+  zlib1g-dev \
+  ruby-dev \
+  libssl-dev
+  # bind-tools \
 
 RUN wget -O /usr/local/bin/om "https://github.com/pivotal-cf/om/releases/download/0.42.0/om-linux"
 RUN wget -O /usr/local/bin/spruce "https://github.com/geofffranks/spruce/releases/download/v1.18.0/spruce-linux-amd64"
