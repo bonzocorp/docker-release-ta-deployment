@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y ca-certificates \
   liblzma-dev \
   zlib1g-dev \
   ruby-dev \
-  libssl-dev
+  libssl-dev \
+  dnsutils
   # bind-tools \
 
 RUN wget -O /usr/local/bin/om "https://github.com/pivotal-cf/om/releases/download/0.42.0/om-linux"
