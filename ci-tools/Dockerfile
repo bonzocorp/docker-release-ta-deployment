@@ -21,8 +21,8 @@ RUN apt-get update && apt-get install -y ca-certificates \
   dnsutils
 
 RUN wget https://github.com/PowerShell/PowerShell/releases/download/v6.2.1/powershell_6.2.1-1.ubuntu.18.04_amd64.deb
-RUN dpkg -i powershell_6.2.1-1.ubuntu.18.04_amd64.deb
-RUN apt-get install -y -f powershell
+RUN dpkg -i --force-all powershell_6.2.1-1.ubuntu.18.04_amd64.deb
+RUN apt-get install -f --yes
 RUN wget -O /usr/local/bin/om "https://github.com/pivotal-cf/om/releases/download/0.42.0/om-linux"
 RUN wget -O /usr/local/bin/spruce "https://github.com/geofffranks/spruce/releases/download/v1.18.0/spruce-linux-amd64"
 RUN wget -O - "https://github.com/vmware/govmomi/releases/download/v0.18.0/govc_linux_amd64.gz" | gunzip -c > /usr/local/bin/govc
