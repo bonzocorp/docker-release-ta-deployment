@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y ca-certificates \
   zlib1g-dev \
   ruby-dev \
   libssl-dev \
-  dnsutils
+  dnsutils \
+  iputils-ping
 
 RUN wget https://github.com/PowerShell/PowerShell/releases/download/v6.2.1/powershell_6.2.1-1.ubuntu.18.04_amd64.deb
 RUN dpkg -i --force-all powershell_6.2.1-1.ubuntu.18.04_amd64.deb
