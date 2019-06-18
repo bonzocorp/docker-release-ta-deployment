@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y ca-certificates \
   zlib1g-dev \
   ruby-dev \
   libssl-dev \
+  vim \
   dnsutils \
   iputils-ping
 
