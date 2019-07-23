@@ -11,6 +11,7 @@ RUN apk update && apk add ca-certificates \
   wget \
   git \
   libc6-compat \
+  coreutils \
   bind-tools
 
 RUN wget -O /usr/local/bin/om "https://github.com/pivotal-cf/om/releases/download/0.42.0/om-linux"
