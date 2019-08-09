@@ -45,7 +45,7 @@ jobs:
     public: true
     serial: true
     plan:
-      - aggregate:
+      - in_parallel:
           - { get: version, resource: version-<%= group.Name %> }
           - { get: edge, resource: edge-<%= group.Name %> , passed: [build-<%= group.Name %>], params: { save: true } }
           - { get: git,  passed: [build-<%= group.Name %>] }
