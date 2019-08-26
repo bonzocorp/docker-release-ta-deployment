@@ -92,7 +92,7 @@ jobs:
         params:
           rebase: true
           repository: pushme/git
-      - put: github
+      - put: github-<%= group.Name %>
         params:
           name: gh/name
           tag:  gh/tag
@@ -130,29 +130,25 @@ resources:
       key:               version
       initial_version:   "0.0.1"
 
+  - name: github-<%= group.Name %>
+    type: github-release
+    source:
+      user:          bonzofenix
+      repository: bonzofenix/<%= group.Name %>
+      access_token: (( grab meta.git_access_token ))
+<% } %>
   - name: git
     type: git
     source:
       uri:         git@github.com:bonzofenix/docker-release-ta-deployment.git
       branch:      master
       private_key: (( grab meta.git_private_key ))
-<% } %>
-
-
-
-
 
   - name: notify
     type: slack-notification
     source:
       url: ""
 
-  - name: github
-    type: github-release
-    source:
-      user:          bonzofenix   
-      repository:   bonzofenix/ci-tools
-      access_token: (( grab meta.git_access_token ))
 
 resource_types:
   - name: slack-notification
