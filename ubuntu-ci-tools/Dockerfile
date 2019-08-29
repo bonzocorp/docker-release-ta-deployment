@@ -29,7 +29,7 @@ RUN wget -O - "https://github.com/vmware/govmomi/releases/download/v0.18.0/govc_
 RUN wget -O /usr/local/bin/replicator "https://github.com/pivotal-cf/replicator/releases/download/0.9.0/replicator-linux"
 RUN wget -O /usr/local/bin/pivnet "https://github.com/pivotal-cf/pivnet-cli/releases/download/v0.0.53/pivnet-linux-amd64-0.0.53"
 RUN wget -O /usr/local/bin/winfs-injector "https://github.com/pivotal-cf/winfs-injector/releases/download/0.11.0/winfs-injector-linux"
-RUN wget -O /usr/local/bin/bosh "https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-3.0.1-linux-amd64"
+RUN wget -O /usr/local/bin/bosh "https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-5.5.1-linux-amd64"
 RUN wget -O cf.tar "https://packages.cloudfoundry.org/stable?release=linux64-binary&source=github" && tar xvf cf.tar && mv cf /usr/local/bin/cf && rm -r cf.tar
 RUN wget -O /usr/local/bin/yaml2vault "https://s3-us-west-1.amazonaws.com/yaml2vault-pipeline/yaml2vault"
 RUN wget "https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/download/v1.2.8/bbr-1.2.8.tar" && tar xvf bbr-1.2.8.tar && mv releases/bbr /usr/local/bin/bbr && rm -r bbr-1.2.8.tar releases
