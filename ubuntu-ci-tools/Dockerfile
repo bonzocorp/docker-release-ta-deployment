@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y ca-certificates \
   vim \
   dnsutils \
   gss-ntlmssp \
-  iputils-ping
+  iputils-ping \
+  unzip
 
 RUN wget -O /usr/local/bin/om "https://github.com/pivotal-cf/om/releases/download/0.42.0/om-linux"
 RUN wget -O /usr/local/bin/spruce "https://github.com/geofffranks/spruce/releases/download/v1.18.0/spruce-linux-amd64"
@@ -35,6 +36,7 @@ RUN wget -O /usr/local/bin/yaml2vault "https://s3-us-west-1.amazonaws.com/yaml2v
 RUN wget "https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/download/v1.2.8/bbr-1.2.8.tar" && tar xvf bbr-1.2.8.tar && mv releases/bbr /usr/local/bin/bbr && rm -r bbr-1.2.8.tar releases
 RUN wget "https://github.com/concourse/concourse/releases/download/v5.3.0/fly-5.3.0-linux-amd64.tgz" && tar xzvf fly-5.3.0-linux-amd64.tgz && mv fly /usr/local/bin/fly && rm -r fly-5.3.0-linux-amd64.tgz
 RUN wget -O /usr/local/bin/safe https://github.com/starkandwayne/safe/releases/download/v0.9.3/safe-linux-amd64
+RUN wget -O vault.zip https://releases.hashicorp.com/vault/1.1.1/vault_1.1.1_linux_amd64.zip && unzip vault.zip && rm vault.zip && mv vault /usr/local/bin/vault
 
 RUN chmod +x /usr/local/bin/om
 RUN chmod +x /usr/local/bin/spruce
@@ -48,3 +50,4 @@ RUN chmod +x /usr/local/bin/bbr
 RUN chmod +x /usr/local/bin/safe
 RUN chmod +x /usr/local/bin/cf
 RUN chmod +x /usr/local/bin/fly
+RUN chmod +x /usr/local/bin/vault
