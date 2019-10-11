@@ -8,7 +8,7 @@ RUN set -x && python get-pip.py
 
 RUN pip install --upgrade pip
 RUN pip install 'mkdocs==1.0.4'
-RUN pip install mkdocs-material
+RUN pip install 'mkdocs-material==4.4.3'
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
