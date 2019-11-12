@@ -17,10 +17,11 @@ jobs:
     public: true
     serial: true
     plan:
-      - get: git
+      - get: <%= group.Name %>
         trigger: true
+        resource: dockerimage
       - put: edge-<%= group.Name %>
-        params: { build: git/<%= group.Name %> }
+        params: { build: <%= group.Name %> }
         on_failure:
           put: notify
           params:
@@ -45,10 +46,10 @@ jobs:
     public: true
     serial: true
     plan:
-      - in_parallel:
+      - aggregate:
           - { get: version, resource: version-<%= group.Name %> }
           - { get: edge, resource: edge-<%= group.Name %> , passed: [build-<%= group.Name %>], params: { save: true } }
-          - { get: git,  passed: [build-<%= group.Name %>] }
+          - { get: <%= group.Name %> ,  passed: [build-<%= group.Name %>] }
 
       - task: release
         config:
@@ -58,16 +59,18 @@ jobs:
               repository: starkandwayne/concourse
           platform: linux
           inputs:
-            - name: git
+            - name:  <%= group.Name %>
+              resource: dockerimage
+            - name: pipeline
             - name: version
           outputs:
             - name: gh
             - name: pushme
           run:
-            path: ./git/ci/scripts/release
+            path: ./pipeline/ci/scripts/release
             args: []
           params:
-            REPO_ROOT:    git
+            REPO_ROOT:    dockerimage
             RELEASE_ROOT: gh
             RELEASE_NAME: <%= group.Name %>
             REPO_OUT:     pushme/git
@@ -134,10 +137,10 @@ resources:
     type: github-release
     source:
       user:          bonzofenix
-      repository: bonzofenix/<%= group.Name %>
+      repository: bonzocorp/<%= group.Name %>
       access_token: (( grab meta.git_access_token ))
 <% } %>
-  - name: git
+  - name: pipeline
     type: git
     source:
       uri:         git@github.com:bonzofenix/docker-release-ta-deployment.git
