@@ -17,9 +17,9 @@ jobs:
     public: true
     serial: true
     plan:
-      - get: <%= group.Name %>
+      - get: dockerimage
         trigger: true
-        resource: dockerimage
+        resource: <%= group.Name %>
       - put: edge-<%= group.Name %>
         params: { build: <%= group.Name %> }
         on_failure:
@@ -46,7 +46,7 @@ jobs:
     public: true
     serial: true
     plan:
-      - aggregate:
+      - in_parallel:
           - { get: version, resource: version-<%= group.Name %> }
           - { get: edge, resource: edge-<%= group.Name %> , passed: [build-<%= group.Name %>], params: { save: true } }
           - { get: <%= group.Name %> ,  passed: [build-<%= group.Name %>] }
