@@ -14,7 +14,7 @@ set -eu
 : ${GIT_EMAIL:?required}
 : ${GIT_NAME:?required}
 
-if [[ ! -f ${REPO_ROOT}/${RELEASE_NAME}/release_notes.md ]]; then
+if [[ ! -f ${REPO_ROOT}/release_notes.md ]]; then
   echo >&2 "release_notes.md not found.  Did you forget to write them?"
   exit 1
 fi
@@ -35,7 +35,7 @@ fi
 
 echo "v${VERSION}"                  > ${RELEASE_ROOT}/tag
 echo "${RELEASE_NAME} v${VERSION}"  > ${RELEASE_ROOT}/name
-mv ${REPO_ROOT}/${RELEASE_NAME}/release_notes.md   ${RELEASE_ROOT}/notes.md
+mv ${REPO_ROOT}/release_notes.md   ${RELEASE_ROOT}/notes.md
 
 # GIT!
 if [[ -z $(git config --global user.email) ]]; then
