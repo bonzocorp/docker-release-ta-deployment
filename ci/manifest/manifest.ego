@@ -21,7 +21,7 @@ jobs:
         trigger: true
         resource: <%= group.Name %>
       - put: edge-<%= group.Name %>
-        params: { build: <%= group.Name %> }
+        params: { build: dockerimage }
         on_failure:
           put: notify
           params:
@@ -33,24 +33,47 @@ jobs:
   - name: minor-<%= group.Name %>
     public: true
     plan:
-      - { get: version, resource: version-<%= group.Name %>, trigger: false, params: {bump: minor-<%= group.Name %>} }
-      - { put: version, resource: version-<%= group.Name %>,                 params: {file: version/number} }
+      - get: version
+        resource: version-<%= group.Name %>
+        trigger: false
+        params:
+          bump: minor-<%= group.Name %>
+      - put: version
+        resource: version-<%= group.Name %>
+        params:
+          file: version/number
 
   - name: major-<%= group.Name %>
     public: true
     plan:
-      - { get: version, resource: version-<%= group.Name %>, trigger: false, params: {bump: major-<%= group.Name %>} }
-      - { put: version, resource: version-<%= group.Name %>,                 params: {file: version/number} }
+      - get: version
+        resource: version-<%= group.Name %>
+        trigger: false
+        params:
+          bump: major-<%= group.Name %>
+      - put: version
+        resource: version-<%= group.Name %>
+        params:
+          file: version/number
 
   - name: promote-<%= group.Name %>
     public: true
     serial: true
     plan:
       - in_parallel:
-          - { get: version, resource: version-<%= group.Name %> }
-          - { get: edge, resource: edge-<%= group.Name %> , passed: [build-<%= group.Name %>], params: { save: true } }
-          - { get: <%= group.Name %> ,  passed: [build-<%= group.Name %>] }
-
+          - get: version
+            resource: version-<%= group.Name %>
+          - get: edge
+            resource: edge-<%= group.Name %>
+            passed:
+            - build-<%= group.Name %>
+            params:
+              save: true
+          - get: dockerimage
+            resource: <%= group.Name %>
+            passed:
+            - build-<%= group.Name %>
+          - get: pipeline
       - task: release
         config:
           image_resource:
@@ -59,8 +82,7 @@ jobs:
               repository: starkandwayne/concourse
           platform: linux
           inputs:
-            - name:  <%= group.Name %>
-              resource: dockerimage
+            - name: dockerimage
             - name: pipeline
             - name: version
           outputs:
@@ -78,7 +100,7 @@ jobs:
             GIT_EMAIL:    "ci@bonzocorp.com"
             GIT_NAME:     ci-Bot
 
-      - put: latest-<%= group.Name %> # as 'latest'
+      - put: latest-<%= group.Name %>
         params:
           load:       edge
 
@@ -87,11 +109,11 @@ jobs:
           tag:             version/number
           tag_prefix:      v
           load:       edge
-
       - put: version-<%= group.Name %> # as 'latest'
         params:
           bump: patch
       - put: git
+        resource: <%= group.Name %>
         params:
           rebase: true
           repository: pushme/git
@@ -136,16 +158,15 @@ resources:
   - name: github-<%= group.Name %>
     type: github-release
     source:
-      user:          bonzofenix
-      repository: bonzocorp/<%= group.Name %>
+      user:          bonzocorp
+      repository: <%= group.Name %>
       access_token: (( grab meta.git_access_token ))
 <% } %>
   - name: pipeline
     type: git
     source:
-      uri:         git@github.com:bonzofenix/docker-release-ta-deployment.git
+      uri:         https://github.com/bonzofenix/docker-release-ta-deployment.git
       branch:      master
-      private_key: (( grab meta.git_private_key ))
 
   - name: notify
     type: slack-notification
